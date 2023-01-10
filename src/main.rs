@@ -1,14 +1,12 @@
-mod lib;
+mod render;
 
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::rect::Point;
 use std::time::Duration;
 
-use lib::{Scene, Vec3, Diamond, Camera};
-
-use crate::lib::Shape;
+use render::{render, Display};
+use render::shapes::{Scene, Vec3, Diamond, Camera, Shape};
 
 pub fn main() {
     let width = 800;
@@ -23,7 +21,7 @@ pub fn main() {
 
     let origin = Vec3::new(0.0, 0.0, -100.0);
     let screen = Diamond::new(
-      Vec3::new(-screen_width / 2.0, -screen_height / 2.0, origin.z - focal),
+        Vec3::new(-screen_width / 2.0, -screen_height / 2.0, origin.z - focal),
       Vec3::new(0.0, screen_width, 0.0),
       Vec3::new(0.0, 100.0, screen_height)
     );
@@ -41,22 +39,25 @@ pub fn main() {
     let video_subsystem = sdl_context.video().unwrap();
 
     let window = video_subsystem.window("rust-sdl2 demo", width, height)
-        .position_centered()
-        .build()
-        .unwrap();
+    .position_centered()
+    .build()
+    .unwrap();
 
-    let mut canvas = window.into_canvas().build().unwrap();
+    let canvas = window.into_canvas().build().unwrap();
+    let mut display = Display::new(canvas, width, height);
 
-    canvas.set_draw_color(Color::RGB(0, 255, 255));
-    canvas.clear();
-    canvas.present();
+    display.canvas.set_draw_color(Color::RGB(0, 255, 255));
+    display.canvas.clear();
+    display.canvas.present();
     let mut event_pump = sdl_context.event_pump().unwrap();
     'running: loop {
-        canvas.set_draw_color(Color::RGB(0, 0, 0));
-        canvas.clear();
+        display.canvas.set_draw_color(Color::RGB(0, 0, 0));
+        display.canvas.clear();
 
-        canvas.set_draw_color(Color::RGB(255, 255, 255));
-        canvas.draw_point(Point::new(100, 100)).unwrap();
+        // display.canvas.set_draw_color(Color::RGB(255, 255, 255));
+        // display.canvas.draw_point(Point::new(100, 100)).unwrap();
+
+        render(&scene, &display);
 
         for event in event_pump.poll_iter() {
             match event {
@@ -69,7 +70,7 @@ pub fn main() {
         }
         // The rest of the game loop goes here...
 
-        canvas.present();
+        display.canvas.present();
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 }

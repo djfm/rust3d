@@ -122,19 +122,24 @@ impl Camera {
 
 pub struct Scene {
     pub camera: Camera,
-    pub objects: Vec<Box<dyn Shape>>,
+    pub shapes: Vec<Box<dyn Shape>>,
 }
 
 impl Scene {
     pub fn new(camera: Camera) -> Scene {
         Scene {
             camera,
-            objects: Vec::new(),
+            shapes: Vec::new(),
         }
     }
 
     pub fn add(&mut self, object: Box<dyn Shape>) -> &mut Self {
-        self.objects.push(object);
+        self.shapes.push(object);
         self
     }
+}
+
+pub struct Ray {
+    pub origin: Vec3,
+    pub direction: Vec3,
 }
