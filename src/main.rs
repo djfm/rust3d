@@ -1,14 +1,37 @@
+mod lib;
+
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::rect::Point;
 use std::time::Duration;
 
+use lib::{Vec3, Rectangle, Camera};
+
 pub fn main() {
+    let width = 800;
+    let height = 600;
+
+    let ratio = height as f32 / width as f32;
+    let screen_width = width as f32 / 10.0;
+    let screen_height = screen_width * ratio;
+    let focal = 20.0;
+
+    let origin = Vec3::new(0.0, 0.0, -100.0);
+    let screen = Rectangle::new(
+      Vec3::new(-screen_width / 2.0, -screen_height / 2.0, origin.z - focal),
+      Vec3::new(0.0, screen_width, 0.0),
+      Vec3::new(0.0, 100.0, screen_height)
+    );
+
+    let camera = Camera::new(origin, screen);
+
+    println!("Camera: {:?}", camera);
+
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
 
-    let window = video_subsystem.window("rust-sdl2 demo", 800, 600)
+    let window = video_subsystem.window("rust-sdl2 demo", width, height)
         .position_centered()
         .build()
         .unwrap();
