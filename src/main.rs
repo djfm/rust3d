@@ -6,7 +6,9 @@ use sdl2::keyboard::Keycode;
 use sdl2::rect::Point;
 use std::time::Duration;
 
-use lib::{Vec3, Rectangle, Camera};
+use lib::{Scene, Vec3, Diamond, Camera};
+
+use crate::lib::Shape;
 
 pub fn main() {
     let width = 800;
@@ -17,16 +19,23 @@ pub fn main() {
     let screen_height = screen_width * ratio;
     let focal = 20.0;
 
+    let dz = Vec3::new(0.0, 0.0, 1.0);
+
     let origin = Vec3::new(0.0, 0.0, -100.0);
-    let screen = Rectangle::new(
+    let screen = Diamond::new(
       Vec3::new(-screen_width / 2.0, -screen_height / 2.0, origin.z - focal),
       Vec3::new(0.0, screen_width, 0.0),
       Vec3::new(0.0, 100.0, screen_height)
     );
 
+    let mut rect = screen.clone();
+    rect.translate(&(2.0 * focal * dz));
     let camera = Camera::new(origin, screen);
-
     println!("Camera: {:?}", camera);
+    println!("Rect: {:?}", rect);
+
+    let mut scene = Scene::new(camera);
+    scene.add(Box::new(rect));
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
