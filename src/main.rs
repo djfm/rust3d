@@ -1,6 +1,7 @@
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
+use sdl2::rect::Point;
 use std::time::Duration;
  
 pub fn main() {
@@ -18,11 +19,13 @@ pub fn main() {
     canvas.clear();
     canvas.present();
     let mut event_pump = sdl_context.event_pump().unwrap();
-    let mut i = 0;
     'running: loop {
-        i = (i + 1) % 255;
-        canvas.set_draw_color(Color::RGB(i, 64, 255 - i));
+        canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
+        
+        canvas.set_draw_color(Color::RGB(255, 255, 255));
+        canvas.draw_point(Point::new(100, 100)).unwrap();
+        
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit {..} |
