@@ -37,6 +37,14 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
     vec![]
 }
 
-pub fn render(scene: &Scene, screen: &Display) {
-    let points = compute(scene, screen);
+pub fn render(scene: &mut Scene, display: &mut Display) {
+    let points = compute(scene, display);
+
+    display.canvas.set_draw_color(Color::RGB(0, 0, 0));
+    display.canvas.clear();
+
+    for point in points {
+        display.canvas.set_draw_color(point.color);
+        display.canvas.draw_point(point.point).unwrap();
+    }
 }

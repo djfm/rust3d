@@ -51,13 +51,10 @@ pub fn main() {
     display.canvas.present();
     let mut event_pump = sdl_context.event_pump().unwrap();
     'running: loop {
-        display.canvas.set_draw_color(Color::RGB(0, 0, 0));
-        display.canvas.clear();
-
         // display.canvas.set_draw_color(Color::RGB(255, 255, 255));
         // display.canvas.draw_point(Point::new(100, 100)).unwrap();
 
-        render(&scene, &display);
+        render(&mut scene, &mut display);
 
         for event in event_pump.poll_iter() {
             match event {
