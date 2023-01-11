@@ -4,7 +4,8 @@ use sdl2::keyboard::Keycode;
 use std::time::Duration;
 
 use rust3d::render::{render, Display};
-use rust3d::render::shapes::{Scene, Vec3, Diamond, Camera, Shape};
+use rust3d::render::shapes::{Scene, Diamond, Camera, Shape};
+use rust3d::math::Vec3;
 
 pub fn main() {
     let width = 800;
