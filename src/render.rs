@@ -3,6 +3,8 @@ use sdl2::rect::Point as SDLPoint;
 use sdl2::video::Window;
 use sdl2::render::Canvas;
 
+use crate::math::Mat3;
+
 pub mod shapes;
 
 use shapes::{Scene};

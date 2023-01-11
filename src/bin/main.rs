@@ -1,12 +1,10 @@
-mod render;
-
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use std::time::Duration;
 
-use render::{render, Display};
-use render::shapes::{Scene, Vec3, Diamond, Camera, Shape};
+use rust3d::render::{render, Display};
+use rust3d::render::shapes::{Scene, Vec3, Diamond, Camera, Shape};
 
 pub fn main() {
     let width = 800;
