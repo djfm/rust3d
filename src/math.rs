@@ -65,11 +65,11 @@ impl ops::Mul<Vec3> for f32 {
     }
 }
 
-impl ops::MulAssign<Vec3> for Vec3 {
-    fn mul_assign(&mut self, other: Vec3) {
-        self.x *= other.x;
-        self.y *= other.y;
-        self.z *= other.z;
+impl ops::MulAssign<f32> for Vec3 {
+    fn mul_assign(&mut self, rhs: f32) {
+        self.x *= rhs;
+        self.y *= rhs;
+        self.z *= rhs;
     }
 }
 
@@ -85,11 +85,11 @@ impl ops::Div<f32> for Vec3 {
     }
 }
 
-impl ops::DivAssign<Vec3> for Vec3 {
-    fn div_assign(&mut self, other: Vec3) {
-        self.x /= other.x;
-        self.y /= other.y;
-        self.z /= other.z;
+impl ops::DivAssign<f32> for Vec3 {
+    fn div_assign(&mut self, rhs: f32) {
+        self.x /= rhs;
+        self.y /= rhs;
+        self.z /= rhs;
     }
 }
 
@@ -266,12 +266,30 @@ mod tests {
     }
 
     #[test]
+    fn test_vector_add_assign() {
+        let mut v1 = Vec3::new(1.0, 2.0, 3.0);
+        let v2 = Vec3::new(3.0, 2.0, 1.0);
+        v1 += v2;
+        let expected = Vec3::new(4.0, 4.0, 4.0);
+        assert_eq!(v1, expected, "vector addition failed");
+    }
+
+    #[test]
     fn test_sub_vectors() {
         let v1 = Vec3::new(1.0, 2.0, 3.0);
         let v2 = Vec3::new(3.0, 2.0, 1.0);
         let actual = v1 - v2;
         let expected = Vec3::new(-2.0, 0.0, 2.0);
         assert_eq!(actual, expected, "vector subtraction failed");
+    }
+
+    #[test]
+    fn test_vector_sub_assign() {
+        let mut v1 = Vec3::new(1.0, 2.0, 3.0);
+        let v2 = Vec3::new(3.0, 2.0, 1.0);
+        v1 -= v2;
+        let expected = Vec3::new(-2.0, 0.0, 2.0);
+        assert_eq!(v1, expected, "vector subtraction failed");
     }
 
     #[test]
@@ -283,11 +301,27 @@ mod tests {
     }
 
     #[test]
+    fn test_vector_mul_assign() {
+        let mut v = Vec3::new(1.0, 2.0, 3.0);
+        v *= 3.0;
+        let expected = Vec3::new(3.0, 6.0, 9.0);
+        assert_eq!(v, expected, "scalar multiplication failed");
+    }
+
+    #[test]
     fn test_div_vector() {
         let v = Vec3::new(2.0, 4.0, 6.0);
         let actual = v / 2.0;
         let expected = Vec3::new(1.0, 2.0, 3.0);
         assert_eq!(actual, expected, "vector division failed");
+    }
+
+    #[test]
+    fn test_vector_div_assign() {
+        let mut v = Vec3::new(2.0, 4.0, 6.0);
+        v /= 2.0;
+        let expected = Vec3::new(1.0, 2.0, 3.0);
+        assert_eq!(v, expected, "vector division failed");
     }
 
     #[test]
@@ -323,4 +357,6 @@ mod tests {
         let expected = Mat3::new([[1.0, 2.0, 3.0], [6.0, 5.0, 4.0], [7.0, 8.0, 9.0]]);
         assert_eq!(actual, expected, "matrix division failed");
     }
+
+
 }
