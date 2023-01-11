@@ -200,6 +200,18 @@ impl ops::Mul<Mat3> for Mat3 {
     }
 }
 
+impl ops::Mul<Vec3> for Mat3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: Vec3) -> Self::Output {
+        Vec3 {
+            x: self.coords[0][0] * rhs.x + self.coords[0][1] * rhs.y + self.coords[0][2] * rhs.z,
+            y: self.coords[1][0] * rhs.x + self.coords[1][1] * rhs.y + self.coords[1][2] * rhs.z,
+            z: self.coords[2][0] * rhs.x + self.coords[2][1] * rhs.y + self.coords[2][2] * rhs.z,
+        }
+    }
+}
+
 impl ops::Mul<Mat3> for f32 {
     type Output = Mat3;
 
@@ -358,5 +370,13 @@ mod tests {
         assert_eq!(actual, expected, "matrix division failed");
     }
 
+    #[test]
+    fn test_matrix_vector_mul() {
+        let m = Mat3::new([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]);
+        let v = Vec3::new(1.0, 2.0, 3.0);
+        let actual = m * v;
+        let expected = Vec3::new(14.0, 32.0, 50.0);
+        assert_eq!(actual, expected, "matrix-vector multiplication failed");
+    }
 
 }
