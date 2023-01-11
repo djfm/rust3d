@@ -21,8 +21,8 @@ pub fn main() {
     let origin = Vec3::new(0.0, 0.0, -100.0);
     let screen = Diamond::new(
         Vec3::new(-screen_width / 2.0, -screen_height / 2.0, origin.z - focal),
-      Vec3::new(0.0, screen_width, 0.0),
-      Vec3::new(0.0, 100.0, screen_height)
+        Vec3::new(0.0, screen_width, 0.0),
+        Vec3::new(0.0, 100.0, screen_height)
     );
 
     let mut rect = screen.clone();

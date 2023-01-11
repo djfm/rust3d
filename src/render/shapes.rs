@@ -6,33 +6,33 @@ pub trait Shape {
 
 #[derive(Debug, Clone, Copy)]
 pub struct Diamond {
-  pub center: Vec3,
-  pub width: Vec3,
-  pub height: Vec3,
+    pub center: Vec3,
+    pub width: Vec3,
+    pub height: Vec3,
 }
 
 impl Diamond {
-  pub fn new(center: Vec3, width: Vec3, height: Vec3) -> Diamond {
-    Diamond { center, width, height }
-  }
+    pub fn new(center: Vec3, width: Vec3, height: Vec3) -> Diamond {
+        Diamond { center, width, height }
+    }
 }
 
 impl Shape for Diamond {
-  fn translate(&mut self, d_pos: &Vec3) {
-    self.center = self.center + *d_pos;
-  }
+    fn translate(&mut self, d_pos: &Vec3) {
+        self.center = self.center + *d_pos;
+    }
 }
 
 #[derive(Debug)]
 pub struct Camera {
-  pub position: Vec3,
-  pub screen: Diamond,
+    pub position: Vec3,
+    pub screen: Diamond,
 }
 
 impl Camera {
-  pub fn new(position: Vec3, screen: Diamond) -> Camera {
-    Camera { position, screen }
-  }
+    pub fn new(position: Vec3, screen: Diamond) -> Camera {
+        Camera { position, screen }
+    }
 }
 
 pub struct Scene {
