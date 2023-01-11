@@ -264,9 +264,91 @@ impl ops::Div<f32> for Mat3 {
     }
 }
 
+pub static ID_MAT3: Mat3 = Mat3 {
+    coords: [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+};
+
+pub static ZERO_MAT3: Mat3 = Mat3 {
+    coords: [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+};
+
+impl Mat3 {
+    pub fn equals(&self, other: &Mat3, epsilon: f32) -> bool {
+        for i in 0..3 {
+            for j in 0..3 {
+                if (self.coords[i][j] - other.coords[i][j]).abs() > epsilon {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+
+    pub fn transpose(&self) -> Mat3 {
+        Mat3 {
+            coords: [
+                [self.coords[0][0], self.coords[1][0], self.coords[2][0]],
+                [self.coords[0][1], self.coords[1][1], self.coords[2][1]],
+                [self.coords[0][2], self.coords[1][2], self.coords[2][2]],
+            ],
+        }
+    }
+
+    pub fn sub_factor(&self, row: usize, col: usize) -> f32 {
+        let row_indices = if row == 0 {
+            [1, 2]
+        } else if row == 1 {
+            [0, 2]
+        } else {
+            [0, 1]
+        };
+
+        let col_indices = if col == 0 {
+            [1, 2]
+        } else if col == 1 {
+            [0, 2]
+        } else {
+            [0, 1]
+        };
+
+        let sign = if (row + col) % 2 == 0 { 1.0 } else { -1.0 };
+
+        sign * (
+            self.coords[row_indices[0]][col_indices[0]] * self.coords[row_indices[1]][col_indices[1]]
+            -
+            self.coords[row_indices[0]][col_indices[1]] * self.coords[row_indices[1]][col_indices[0]]
+        )
+    }
+
+    pub fn invert(&self) -> Option<Mat3> {
+
+        let co_matrix = Mat3 {
+            coords: [
+                [self.sub_factor(0, 0), self.sub_factor(0, 1), self.sub_factor(0, 2)],
+                [self.sub_factor(1, 0), self.sub_factor(1, 1), self.sub_factor(1, 2)],
+                [self.sub_factor(2, 0), self.sub_factor(2, 1), self.sub_factor(2, 2)],
+            ],
+        };
+
+        let co_matrix_t = co_matrix.transpose();
+
+        let determinant =
+              self.coords[0][0] * co_matrix_t.coords[0][0]
+            + self.coords[0][1] * co_matrix_t.coords[1][0]
+            + self.coords[0][2] * co_matrix_t.coords[2][0];
+
+        if determinant == 0.0 {
+            None
+        } else {
+            Some(co_matrix_t / determinant)
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rand::Rng;
 
     #[test]
     fn test_add_vectors() {
@@ -377,6 +459,59 @@ mod tests {
         let actual = m * v;
         let expected = Vec3::new(14.0, 32.0, 50.0);
         assert_eq!(actual, expected, "matrix-vector multiplication failed");
+    }
+
+    #[test]
+    fn test_matrix_inverse_none() {
+        let m = Mat3::new([[1.0, 2.0, 3.0], [2.0, 4.0, 6.0], [7.0, 8.0, 9.0]]);
+        let actual = m.invert();
+        assert!(actual.is_none(), "matrix inverse failed");
+    }
+
+    #[test]
+    fn test_matrix_transpose() {
+        let m = Mat3::new([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]);
+        let actual = m.transpose();
+        let expected = Mat3::new([[1.0, 4.0, 7.0], [2.0, 5.0, 8.0], [3.0, 6.0, 9.0]]);
+        assert_eq!(actual, expected, "matrix transpose failed");
+    }
+
+    #[test]
+    fn test_matrix_inverse() {
+        let m = Mat3::new([[1.0, 3.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]);
+        let inv = m.invert().unwrap();
+        let result = m * inv;
+        assert_eq!(result, ID_MAT3, "matrix inverse failed");
+    }
+
+    #[test]
+    fn test_many_matrix_inverses() {
+        let mut rng = rand::thread_rng();
+        let tests_count = 100;
+        let mut inverted_count = 0;
+
+        for _ in 0..tests_count {
+            let m = Mat3::new([
+                [rng.gen(), rng.gen(), rng.gen()],
+                [rng.gen(), rng.gen(), rng.gen()],
+                [rng.gen(), rng.gen(), rng.gen()]
+            ]);
+
+            let m_inv = m.invert();
+
+            match m_inv {
+                Some(inv) => {
+                    let inv_m = inv * m;
+                    let m_inv = m * inv;
+                    assert!(inv_m.equals(&ID_MAT3, 0.0001), "matrix inverse failed");
+                    assert!(m_inv.equals(&ID_MAT3, 0.0001), "matrix inverse failed");
+                    inverted_count += 1;
+                },
+                None => {}
+            }
+
+            assert!(inverted_count > 0, "matrix inverse failed");
+        }
     }
 
 }
