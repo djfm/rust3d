@@ -11,6 +11,23 @@ impl Vec3 {
     pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
         Vec3 { x, y, z }
     }
+
+    pub fn norm2(&self) -> f32 {
+        self.x * self.x + self.y * self.y + self.z * self.z
+    }
+
+    pub fn norm(&self) -> f32 {
+        self.norm2().sqrt()
+    }
+
+    pub fn normalize(&self) -> Vec3 {
+        let norm = self.norm();
+        Vec3 {
+            x: self.x / norm,
+            y: self.y / norm,
+            z: self.z / norm,
+        }
+    }
 }
 
 impl ops::Add<Vec3> for Vec3 {
@@ -342,6 +359,24 @@ impl Mat3 {
         } else {
             Some(co_matrix_t / determinant)
         }
+    }
+}
+
+pub struct Line {
+    pub origin: Vec3,
+    pub direction: Vec3,
+}
+
+impl Line {
+    pub fn new(origin: Vec3, direction: Vec3) -> Line {
+        Line {
+            origin,
+            direction: direction.normalize(),
+        }
+    }
+
+    pub fn point_at(&self, t: f32) -> Vec3 {
+        self.origin + t * self.direction
     }
 }
 

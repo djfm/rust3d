@@ -4,6 +4,17 @@ pub trait Shape {
     fn translate(&mut self, d_pos: &Vec3);
 }
 
+pub struct Ray {
+    pub origin: Vec3,
+    pub direction: Vec3,
+}
+
+impl Ray {
+    pub fn new(origin: Vec3, direction: Vec3) -> Ray {
+        Ray { origin, direction: direction.normalize() }
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct Diamond {
     pub center: Vec3,
@@ -52,9 +63,4 @@ impl Scene {
         self.shapes.push(object);
         self
     }
-}
-
-pub struct Ray {
-    pub origin: Vec3,
-    pub direction: Vec3,
 }

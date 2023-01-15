@@ -7,7 +7,7 @@ use crate::math::Mat3;
 
 pub mod shapes;
 
-use shapes::{Scene};
+use shapes::{Scene, Ray};
 
 pub struct Display {
     pub canvas: Canvas<Window>,
@@ -36,6 +36,20 @@ impl Display {
 }
 
 fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
+    let bottom_right = scene.camera.screen.center - scene.camera.screen.width / 2.0 - scene.camera.screen.height / 2.0;
+
+
+    for x in 0..screen.width {
+        for y in 0..screen.height {
+            let screen_pos = bottom_right + (x as f32 / screen.width as f32) * scene.camera.screen.width + (y as f32 / screen.height as f32) * scene.camera.screen.height;
+
+            let ray = Ray::new(
+                screen_pos,
+                screen_pos - scene.camera.position,
+            );
+        }
+    }
+
     vec![]
 }
 
