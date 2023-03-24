@@ -16,19 +16,25 @@ pub fn main() {
     let screen_height = screen_width * ratio;
     let focal = 20.0;
 
-    let dz = Vec3::new(0.0, 0.0, 1.0);
 
-    let origin = Vec3::new(0.0, 0.0, -100.0);
+    let screen_z = 0.0;
+    let origin = Vec3::new(0.0, 0.0, screen_z - focal);
     let screen = Diamond::new(
-        Vec3::new(-screen_width / 2.0, -screen_height / 2.0, origin.z - focal),
-        Vec3::new(0.0, screen_width, 0.0),
-        Vec3::new(0.0, 100.0, screen_height)
+        Vec3::new(origin.x - screen_width / 2.0, origin.y - screen_height / 2.0, screen_z),
+        Vec3::new(screen_width, 0.0, 0.0),
+        Vec3::new(0.0, screen_height, 0.0)
     );
 
-    let mut rect = screen.clone();
-    rect.translate(&(2.0 * focal * dz));
     let camera = Camera::new(origin, screen);
     println!("Camera: {:?}", camera);
+
+    let c = 150.0;
+    let rect = Diamond::new(
+        Vec3::new(-c/2.0, -c/2.0, 1.0),
+        Vec3::new(c, 0.0, 1.0),
+        Vec3::new(0.0, c, 1.0)
+    );
+
     println!("Rect: {:?}", rect);
 
     let mut scene = Scene::new(camera);

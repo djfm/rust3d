@@ -15,6 +15,7 @@ pub struct Display {
     pub height: u32,
 }
 
+#[derive(Debug)]
 pub struct Point {
     point: SDLPoint,
     color: Color,
@@ -36,21 +37,35 @@ impl Display {
 }
 
 fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
-    let bottom_right = scene.camera.screen.center - scene.camera.screen.width / 2.0 - scene.camera.screen.height / 2.0;
+    let bottom_left = scene.camera.screen.center - scene.camera.screen.width / 2.0 - scene.camera.screen.height / 2.0;
+    println!("bottom_left: {:?}", bottom_left);
+    println!("camera: {:?}", scene.camera);
 
+    let mut points:Vec<Point> = Vec::new();
 
     for x in 0..screen.width {
         for y in 0..screen.height {
-            let screen_pos = bottom_right + (x as f32 / screen.width as f32) * scene.camera.screen.width + (y as f32 / screen.height as f32) * scene.camera.screen.height;
+            let screen_pos = bottom_left + (x as f32 / screen.width as f32) * scene.camera.screen.width + (y as f32 / screen.height as f32) * scene.camera.screen.height;
 
             let ray = Ray::new(
                 screen_pos,
                 screen_pos - scene.camera.position,
             );
+
+            for shape in &scene.shapes {
+                if let Some(_) = shape.intersect(&ray) {
+                    // println!("intersection: {:?}", intersection);
+                    points.push(Point::new(x as i32, y as i32, Color::RGB(255, 255, 255)));
+                }
+            }
         }
     }
 
-    vec![]
+    println!("{:#?} points", points);
+
+    std::panic!("test");
+
+    points
 }
 
 pub fn render(scene: &mut Scene, display: &mut Display) {

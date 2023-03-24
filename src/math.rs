@@ -119,6 +119,16 @@ impl Mat3 {
     pub fn new(coords: [[f32; 3]; 3]) -> Mat3 {
         Mat3 { coords }
     }
+
+    pub fn from_cols(a: &Vec3, b: &Vec3, c: &Vec3) -> Mat3 {
+        Mat3 {
+            coords: [
+                [a.x, b.x, c.x],
+                [a.y, b.y, c.y],
+                [a.z, b.z, c.z],
+            ],
+        }
+    }
 }
 
 impl ops::Add<Mat3> for Mat3 {
