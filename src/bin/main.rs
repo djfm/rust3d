@@ -20,7 +20,7 @@ pub fn main() {
     let screen_z = 0.0;
     let origin = Vec3::new(0.0, 0.0, screen_z - focal);
     let screen = Diamond::new(
-        Vec3::new(origin.x - screen_width / 2.0, origin.y - screen_height / 2.0, screen_z),
+        Vec3::new(origin.x, origin.y, screen_z),
         Vec3::new(screen_width, 0.0, 0.0),
         Vec3::new(0.0, screen_height, 0.0)
     );
@@ -30,9 +30,9 @@ pub fn main() {
 
     let c = 150.0;
     let rect = Diamond::new(
-        Vec3::new(-c/2.0, -c/2.0, 1.0),
-        Vec3::new(c, 0.0, 1.0),
-        Vec3::new(0.0, c, 1.0)
+        Vec3::new(0.0, 0.0, 1.0),
+        Vec3::new(c, 0.0, 0.0),
+        Vec3::new(0.0, c, 0.0)
     );
 
     println!("Rect: {:?}", rect);

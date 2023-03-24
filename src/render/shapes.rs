@@ -42,7 +42,7 @@ impl Shape for Diamond {
     }
 
     fn intersect(&self, ray: &Ray) -> Option<Intersection> {
-        println!("intersect {:?} with {:?}", ray, self);
+        // println!("intersect {:?} with {:?}", ray, self);
 
         let mat = Mat3::from_cols(&self.width, &self.height, &ray.direction);
         let v = ray.origin - self.center + self.width / 2.0 + self.height / 2.0;
