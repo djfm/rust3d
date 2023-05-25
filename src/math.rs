@@ -28,6 +28,10 @@ impl Vec3 {
             z: self.z / norm,
         }
     }
+
+    pub fn dot(&self, other: &Vec3) -> f32 {
+        self.x * other.x + self.y * other.y + self.z * other.z
+    }
 }
 
 impl ops::Add<Vec3> for Vec3 {
@@ -557,6 +561,15 @@ mod tests {
 
             assert!(inverted_count > 0, "matrix inverse failed");
         }
+    }
+
+    #[test]
+    fn test_vector_dot_product() {
+        let v1 = Vec3::new(1.0, 2.0, 3.0);
+        let v2 = Vec3::new(4.0, 5.0, 6.0);
+        let actual = v1.dot(&v2);
+        let expected = 32.0;
+        assert_eq!(actual, expected, "vector dot product failed");
     }
 
 }

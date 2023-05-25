@@ -1,10 +1,9 @@
-use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use std::time::Duration;
 
 use rust3d::render::{render, Display};
-use rust3d::render::shapes::{Scene, Diamond, Camera};
+use rust3d::render::shapes::{Scene, Diamond, Camera, Sphere};
 use rust3d::math::Vec3;
 
 pub fn main() {
@@ -14,7 +13,7 @@ pub fn main() {
     let ratio = height as f32 / width as f32;
     let screen_width = width as f32 / 10.0;
     let screen_height = screen_width * ratio;
-    let focal = 20.0;
+    let focal = 40.0;
 
 
     let screen_z = 0.0;
@@ -37,8 +36,11 @@ pub fn main() {
 
     println!("Rect: {:?}", rect);
 
+    let sphere = Sphere::new(Vec3::new(7.0, 15.0, 15.0), 12.0);
+
     let mut scene = Scene::new(camera);
     scene.add(Box::new(rect));
+    scene.add(Box::new(sphere));
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();

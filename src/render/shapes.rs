@@ -34,6 +34,59 @@ impl Default for Diamond {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct Sphere {
+    pub center: Vec3,
+    pub radius: f32,
+}
+
+impl Sphere {
+    pub fn new(center: Vec3, radius: f32) -> Sphere {
+        Sphere { center, radius }
+    }
+}
+
+impl Shape for Sphere {
+    fn translate(&mut self, d_pos: &Vec3) {
+        self.center = self.center + *d_pos;
+    }
+
+    fn intersect(&self, ray: &Ray) -> Option<Intersection> {
+        // ||ray.origin + t * ray.direction - self.center||^2 = self.radius^2
+        let delta_o = ray.origin - self.center;
+        let v = ray.direction;
+
+        let a = v.norm2();
+        let b = 2.0 * delta_o.dot(&v);
+        let c = delta_o.norm2() - self.radius * self.radius;
+
+        let delta = b * b - 4.0 * a * c;
+
+        if delta > 0.0 {
+            let candidates = [
+                (-b - delta.sqrt()) / (2.0 * a),
+                (-b + delta.sqrt()) / (2.0 * a),
+            ];
+
+            let min = if candidates[0] < candidates[1] { candidates[0] } else { candidates[1] };
+
+            Some(Intersection {
+                point: ray.origin + min * ray.direction,
+                dist: min,
+            })
+        } else if delta == 0.0 {
+            let t = -b / (2.0 * a);
+
+            Some(Intersection {
+                point: ray.origin + t * ray.direction,
+                dist: t,
+            })
+        } else {
+            None
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Intersection {
     pub point: Vec3,
