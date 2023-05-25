@@ -3,8 +3,6 @@ use sdl2::rect::Point as SDLPoint;
 use sdl2::video::Window;
 use sdl2::render::Canvas;
 
-use crate::math::Mat3;
-
 pub mod shapes;
 
 use shapes::{Scene, Ray};
@@ -38,8 +36,6 @@ impl Display {
 
 fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
     let bottom_left = scene.camera.screen.center - scene.camera.screen.width / 2.0 - scene.camera.screen.height / 2.0;
-    println!("bottom_left: {:?}", bottom_left);
-    println!("camera: {:?}", scene.camera);
 
     let mut points:Vec<Point> = Vec::new();
 
