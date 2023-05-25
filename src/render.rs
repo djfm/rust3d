@@ -1,3 +1,5 @@
+use std::cmp::max;
+
 use sdl2::pixels::Color;
 use sdl2::rect::Point as SDLPoint;
 use sdl2::video::Window;
@@ -6,6 +8,8 @@ use sdl2::render::Canvas;
 pub mod shapes;
 
 use shapes::{Scene, Ray};
+
+use self::shapes::Intersection;
 
 pub struct Display {
     pub canvas: Canvas<Window>,
@@ -34,6 +38,14 @@ impl Display {
     }
 }
 
+fn compute_color(ray: &Ray, intersection: &Intersection) -> Color {
+    let a = ray.direction.dot(&intersection.normal);
+
+    let c = (255.0 - a.abs() * 127.0) as u8;
+
+    return Color::RGB(c, c, c);
+}
+
 fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
     let bottom_left = scene.camera.screen.center - scene.camera.screen.width / 2.0 - scene.camera.screen.height / 2.0;
 
@@ -49,8 +61,8 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
             );
 
             for shape in &scene.shapes {
-                if let Some(_) = shape.intersect(&ray) {
-                    points.push(Point::new(x as i32, y as i32, Color::RGB(255, 255, 255)));
+                if let Some(intersection) = shape.intersect(&ray) {
+                    points.push(Point::new(x as i32, y as i32, compute_color(&ray, &intersection)));
                 }
             }
         }

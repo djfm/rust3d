@@ -70,16 +70,21 @@ impl Shape for Sphere {
 
             let min = if candidates[0] < candidates[1] { candidates[0] } else { candidates[1] };
 
+            let point = ray.origin + min * ray.direction;
+
             Some(Intersection {
-                point: ray.origin + min * ray.direction,
+                point,
                 dist: min,
+                normal: (point - self.center).normalize(),
             })
         } else if delta == 0.0 {
             let t = -b / (2.0 * a);
+            let point = ray.origin + t * ray.direction;
 
             Some(Intersection {
-                point: ray.origin + t * ray.direction,
+                point,
                 dist: t,
+                normal: (point - self.center).normalize(),
             })
         } else {
             None
@@ -91,6 +96,7 @@ impl Shape for Sphere {
 pub struct Intersection {
     pub point: Vec3,
     pub dist: f32,
+    pub normal: Vec3,
 }
 
 impl Diamond {
@@ -117,9 +123,18 @@ impl Shape for Diamond {
             let t = -neg_t;
 
             if w >= -0.5 && w <= 0.5 && h >= -0.5 && h <= 0.5 && t >= 0.0  {
+                let cross_products = self.width.cross(&self.height);
+
+                let normal = if cross_products[0].dot(&ray.direction) > 0.0 {
+                    cross_products[0]
+                } else {
+                    cross_products[1]
+                };
+
                 Some(Intersection {
                     point: ray.origin + t * ray.direction,
                     dist: t,
+                    normal,
                 })
             } else {
                 None

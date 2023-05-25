@@ -32,6 +32,25 @@ impl Vec3 {
     pub fn dot(&self, other: &Vec3) -> f32 {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
+
+    pub fn cross(&self, other: &Vec3) -> [Vec3; 2] {
+        [
+            Vec3 {
+                x: self.y * other.z - self.z * other.y,
+                y: self.z * other.x - self.x * other.z,
+                z: self.x * other.y - self.y * other.x,
+            }.normalize(),
+            Vec3 {
+                x: self.z * other.y - self.y * other.z,
+                y: self.x * other.z - self.z * other.x,
+                z: self.y * other.x - self.x * other.y,
+            }.normalize(),
+        ]
+    }
+
+    pub fn angle(&self, other: &Vec3) -> f32 {
+        self.dot(other).acos()
+    }
 }
 
 impl ops::Add<Vec3> for Vec3 {
