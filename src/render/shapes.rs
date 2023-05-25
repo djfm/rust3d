@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use crate::math::{Vec3, Mat3};
 
 pub trait Shape {
