@@ -30,7 +30,7 @@ pub fn main() {
 
     let c = 150.0;
     let rect = Diamond::new(
-        Vec3::new(0.0, 0.0, 1.0),
+        Vec3::new(0.0, 0.0, 10.0),
         Vec3::new(c, 0.0, 0.0),
         Vec3::new(0.0, c, 0.0)
     );

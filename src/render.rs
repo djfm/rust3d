@@ -54,16 +54,11 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
 
             for shape in &scene.shapes {
                 if let Some(_) = shape.intersect(&ray) {
-                    // println!("intersection: {:?}", intersection);
                     points.push(Point::new(x as i32, y as i32, Color::RGB(255, 255, 255)));
                 }
             }
         }
     }
-
-    println!("{:#?} points", points);
-
-    std::panic!("test");
 
     points
 }

@@ -49,7 +49,7 @@ impl Shape for Diamond {
 
         // ray.origin - self.center = w * self.width + h * self.height - t * ray.direction
 
-        if let Some(inv) = mat.into() {
+        if let Some(inv) = mat.invert() {
             let Vec3{x: w, y: h, z: neg_t} = inv * v;
             let t = -neg_t;
 
