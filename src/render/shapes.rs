@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::math::{Vec3, Mat3};
 
 pub trait Shape {
@@ -24,6 +26,16 @@ pub struct Diamond {
     pub height: Vec3,
 }
 
+impl Default for Diamond {
+    fn default() -> Self {
+        Diamond {
+            center: Vec3::new(0.0, 0.0, 0.0),
+            width: Vec3::new(1.0, 0.0, 0.0),
+            height: Vec3::new(0.0, 1.0, 0.0),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Intersection {
     pub point: Vec3,
@@ -32,7 +44,7 @@ pub struct Intersection {
 
 impl Diamond {
     pub fn new(center: Vec3, width: Vec3, height: Vec3) -> Diamond {
-        Diamond { center, width, height }
+        Diamond { center, width, height, ..Default::default() }
     }
 }
 
@@ -42,18 +54,18 @@ impl Shape for Diamond {
     }
 
     fn intersect(&self, ray: &Ray) -> Option<Intersection> {
-        // println!("intersect {:?} with {:?}", ray, self);
-
-        let mat = Mat3::from_cols(&self.width, &self.height, &ray.direction);
-        let v = ray.origin - self.center + self.width / 2.0 + self.height / 2.0;
-
+        // ray.origin + t * ray.direction = self.center + w * self.width + h * self.height
         // ray.origin - self.center = w * self.width + h * self.height - t * ray.direction
+        let delta_o = ray.origin - self.center;
+        let mat = Mat3::from_cols(&self.width, &self.height, &ray.direction);
+        // delta_o =  mat * Vec3::new(w, h, -t)
+        // if invertible: mat^(-1) * delta_o = Vec3::new(w, h, -t)
 
         if let Some(inv) = mat.invert() {
-            let Vec3{x: w, y: h, z: neg_t} = inv * v;
+            let Vec3{x: w, y: h, z: neg_t} = inv * delta_o;
             let t = -neg_t;
 
-            if w >= -0.5 && w <= 0.5 && h >= 0.5 && h <= 0.5 && t >= 0.0 {
+            if w >= -0.5 && w <= 0.5 && h >= -0.5 && h <= 0.5 && t >= 0.0  {
                 Some(Intersection {
                     point: ray.origin + t * ray.direction,
                     dist: t,
