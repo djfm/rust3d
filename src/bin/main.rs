@@ -51,9 +51,10 @@ pub fn main() {
     let canvas = window.into_canvas().build().unwrap();
     let mut display = Display::new(canvas, width, height);
 
-    display.canvas.set_draw_color(Color::RGB(0, 255, 255));
-    display.canvas.clear();
-    display.canvas.present();
+    // display.canvas.set_draw_color(Color::RGB(0, 255, 255));
+    // display.canvas.clear();
+    // display.canvas.present();
+
     let mut event_pump = sdl_context.event_pump().unwrap();
     'running: loop {
         // display.canvas.set_draw_color(Color::RGB(255, 255, 255));
