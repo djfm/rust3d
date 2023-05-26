@@ -13,7 +13,7 @@ pub fn main() {
     let ratio = height as f32 / width as f32;
     let screen_width = width as f32 / 10.0;
     let screen_height = screen_width * ratio;
-    let focal = 40.0;
+    let focal = 500.0;
 
 
     let screen_z = 0.0;
@@ -29,7 +29,7 @@ pub fn main() {
 
     let c = 10.0;
     let rect = Diamond::new(
-        Vec3::new(0.0, 0.0, 1.0),
+        Vec3::new(-c, 0.0, 1.0),
         Vec3::new(c, 0.0, 0.0),
         Vec3::new(0.0, c, 0.0)
     );
@@ -42,7 +42,7 @@ pub fn main() {
     scene.add(Box::new(rect));
     scene.add(Box::new(sphere));
 
-    let quad = Quad::iso(Vec3::new(30.0, -20.0, 30.0), 15.0);
+    let quad = Quad::iso(Vec3::new(30.0, -20.0, 80.0), 15.0);
     scene.add(Box::new(quad));
 
     let sdl_context = sdl2::init().unwrap();
@@ -79,7 +79,7 @@ pub fn main() {
         // The rest of the game loop goes here...
 
         for shape in scene.shapes.iter_mut() {
-            shape.rotate(0.01, 0.01, 0.01);
+            shape.rotate(0.0, 0.0, 0.01);
         }
 
         display.canvas.present();

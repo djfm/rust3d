@@ -81,13 +81,7 @@ impl Shape for Quad {
             .map(|i| i.unwrap())
             .collect::<Vec<_>>();
 
-        intersections.sort_by(|a, b| a.dist.partial_cmp(&b.dist).unwrap());
-
-        if intersections.is_empty() {
-            None
-        } else {
-            Some(intersections[0])
-        }
+        Intersection::nearest(&mut intersections)
     }
 
     fn rotate(&mut self, theta_x: f32, theta_y: f32, theta_z: f32) {
@@ -165,6 +159,17 @@ pub struct Intersection {
     pub point: Vec3,
     pub dist: f32,
     pub normal: Vec3,
+}
+
+impl Intersection {
+    pub fn nearest(intersections: &mut[Intersection]) -> Option<Intersection> {
+        if intersections.is_empty() {
+            None
+        } else {
+            intersections.sort_by(|a, b| a.dist.partial_cmp(&b.dist).unwrap());
+            Some(intersections[0])
+        }
+    }
 }
 
 impl Diamond {

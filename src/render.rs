@@ -68,14 +68,15 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
                 }
             }
 
-
-            if !intersections.is_empty() {
-                intersections.sort_by(|a, b| a.dist.partial_cmp(&b.dist).unwrap());
-                points.push(Point::new(
-                    x as i32,
-                    (screen.height - y) as i32,
-                    compute_color(&ray, &intersections[0])
-                ))
+            match Intersection::nearest(&mut intersections) {
+                Some(intersection) => {
+                    points.push(Point::new(
+                        x as i32,
+                        (screen.height - y) as i32,
+                        compute_color(&ray, &intersection)
+                    ))
+                },
+                None => {}
             }
         }
     }
@@ -92,5 +93,31 @@ pub fn render(scene: &mut Scene, display: &mut Display) {
     for point in points {
         display.canvas.set_draw_color(point.color);
         display.canvas.draw_point(point.point).unwrap();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::math::Vec3;
+    use crate::render::Intersection;
+
+    #[test]
+    fn test_intersections_order() {
+        let a = Intersection {
+            point: Vec3::new(0.0, 0.0, 0.0),
+            dist: 1.0,
+            normal: Vec3::new(0.0, 0.0, 0.0),
+        };
+
+        let b = Intersection {
+            point: Vec3::new(0.0, 0.0, 0.0),
+            dist: 2.0,
+            normal: Vec3::new(0.0, 0.0, 0.0),
+        };
+
+        let mut inters = [a, b];
+
+        let nearest = Intersection::nearest(&mut inters);
+        assert_eq!(nearest.unwrap().dist, 1.0);
     }
 }
