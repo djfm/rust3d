@@ -34,6 +34,63 @@ impl Default for Diamond {
     }
 }
 
+pub struct Quad {
+    pub center: Vec3,
+    pub width: Vec3,
+    pub height: Vec3,
+    pub depth: Vec3,
+}
+
+impl Quad {
+    pub fn new(center: Vec3, width: Vec3, height: Vec3, depth: Vec3) -> Quad {
+        Quad { center, width, height, depth }
+    }
+
+    pub fn iso(center: Vec3, side: f32) -> Quad {
+        let width = Vec3::new(side, 0.0, 0.0);
+        let height = Vec3::new(0.0, side, 0.0);
+        let depth = Vec3::new(0.0, 0.0, side);
+
+        Quad {
+            center: center - width / 2.0 - height / 2.0 - depth / 2.0,
+            width,
+            height,
+            depth,
+        }
+    }
+}
+
+impl Shape for Quad {
+    fn translate(&mut self, d_pos: &Vec3) {
+        self.center = self.center + *d_pos;
+    }
+
+    fn intersect(&self, ray: &Ray) -> Option<Intersection> {
+        let mut intersections = [
+            Diamond::new(self.center - self.width / 2.0, self.height, self.depth),
+            Diamond::new(self.center + self.width / 2.0, self.height, self.depth),
+            Diamond::new(self.center - self.height / 2.0, self.width, self.depth),
+            Diamond::new(self.center + self.height / 2.0, self.width, self.depth),
+            Diamond::new(self.center - self.depth / 2.0, self.width, self.height),
+            Diamond::new(self.center + self.depth / 2.0, self.width, self.height),
+        ]
+            .map(|diamond| diamond.intersect(ray))
+            .iter()
+            .filter(|i| i.is_some())
+            .map(|i| i.unwrap())
+            .collect::<Vec<_>>();
+
+        intersections.sort_by(|a, b| a.dist.partial_cmp(&b.dist).unwrap());
+
+        if intersections.is_empty() {
+            None
+        } else {
+            Some(intersections[0])
+        }
+
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct Sphere {
     pub center: Vec3,
@@ -92,7 +149,7 @@ impl Shape for Sphere {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Intersection {
     pub point: Vec3,
     pub dist: f32,

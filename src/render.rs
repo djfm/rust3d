@@ -1,5 +1,3 @@
-use std::cmp::max;
-
 use sdl2::pixels::Color;
 use sdl2::rect::Point as SDLPoint;
 use sdl2::video::Window;

@@ -3,7 +3,7 @@ use sdl2::keyboard::Keycode;
 use std::time::Duration;
 
 use rust3d::render::{render, Display};
-use rust3d::render::shapes::{Scene, Diamond, Camera, Sphere};
+use rust3d::render::shapes::{Scene, Diamond, Camera, Sphere, Quad};
 use rust3d::math::Vec3;
 
 pub fn main() {
@@ -41,6 +41,9 @@ pub fn main() {
     let mut scene = Scene::new(camera);
     scene.add(Box::new(rect));
     scene.add(Box::new(sphere));
+
+    let quad = Quad::iso(Vec3::new(30.0, 10.0, 30.0), 15.0);
+    scene.add(Box::new(quad));
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
