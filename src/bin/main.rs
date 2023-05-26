@@ -42,7 +42,7 @@ pub fn main() {
     scene.add(Box::new(rect));
     scene.add(Box::new(sphere));
 
-    let quad = Quad::iso(Vec3::new(30.0, 10.0, 30.0), 15.0);
+    let quad = Quad::iso(Vec3::new(30.0, -20.0, 30.0), 15.0);
     scene.add(Box::new(quad));
 
     let sdl_context = sdl2::init().unwrap();

@@ -60,7 +60,13 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
 
             for shape in &scene.shapes {
                 if let Some(intersection) = shape.intersect(&ray) {
-                    points.push(Point::new(x as i32, y as i32, compute_color(&ray, &intersection)));
+                    points.push(
+                        Point::new(
+                            x as i32,
+                            (screen.height - y) as i32,
+                            compute_color(&ray, &intersection)
+                        )
+                    );
                 }
             }
         }
