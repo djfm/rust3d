@@ -393,6 +393,58 @@ impl Mat3 {
             Some(co_matrix_t / determinant)
         }
     }
+
+    /*
+        From wiki (https://en.wikipedia.org/wiki/Rotation_matrix):
+
+        For column vectors, each of these basic vector rotations appears counterclockwise when:
+        - the axis about which they occur points toward the observer,
+        - the coordinate system is right-handed,
+        - and the angle θ is positive.
+    */
+
+    pub fn rot_x(theta: f32) -> Self {
+        let sin_theta = theta.sin();
+        let cos_theta = theta.cos();
+
+        Mat3 {
+            coords: [
+                [1.0, 0.0, 0.0],
+                [0.0, cos_theta, -sin_theta],
+                [0.0, sin_theta, cos_theta],
+            ],
+        }
+    }
+
+    pub fn rot_y(theta: f32) -> Self {
+        let sin_theta = theta.sin();
+        let cos_theta = theta.cos();
+
+        Mat3 {
+            coords: [
+               [cos_theta, 0.0, sin_theta],
+               [0.0, 1.0, 0.0],
+               [-sin_theta, 0.0, cos_theta],
+            ],
+        }
+    }
+
+    pub fn rot_z(theta: f32) -> Self {
+        let sin_theta = theta.sin();
+        let cos_theta = theta.cos();
+
+        Mat3 {
+            coords: [
+                [cos_theta, -sin_theta, 0.0],
+                [sin_theta, cos_theta, 0.0],
+                [0.0, 0.0, 1.0],
+            ],
+        }
+    }
+
+    pub fn rot_x_y_z(theta_x: f32, theta_y: f32, theta_z: f32) -> Self {
+        Mat3::rot_x(theta_x) * Mat3::rot_y(theta_y) * Mat3::rot_z(theta_z)
+    }
 }
 
 pub struct Line {
