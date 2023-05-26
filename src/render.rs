@@ -58,16 +58,24 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
                 screen_pos - scene.camera.position,
             );
 
+            let mut intersections: Vec<Intersection> = Vec::new();
+
             for shape in &scene.shapes {
                 if let Some(intersection) = shape.intersect(&ray) {
-                    points.push(
-                        Point::new(
-                            x as i32,
-                            (screen.height - y) as i32,
-                            compute_color(&ray, &intersection)
-                        )
+                    intersections.push(
+                        intersection
                     );
                 }
+            }
+
+
+            if !intersections.is_empty() {
+                intersections.sort_by(|a, b| a.dist.partial_cmp(&b.dist).unwrap());
+                points.push(Point::new(
+                    x as i32,
+                    (screen.height - y) as i32,
+                    compute_color(&ray, &intersections[0])
+                ))
             }
         }
     }
