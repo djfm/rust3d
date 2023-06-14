@@ -5,6 +5,7 @@ pub trait Shape {
     fn rotate(&mut self, theta_x: f32, theta_y: f32, theta_z: f32);
     fn intersect(&self, ray: &Ray) -> Option<Intersection>;
     fn get_center(&self) -> Vec3;
+    fn get_diameter_bound(&self) -> f32;
 }
 
 #[derive(Debug)]
@@ -95,6 +96,10 @@ impl Shape for Quad {
     fn get_center(&self) -> Vec3 {
         self.center
     }
+
+    fn get_diameter_bound(&self) -> f32 {
+        (self.width + self.height + self.depth).norm()
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -160,6 +165,10 @@ impl Shape for Sphere {
 
     fn get_center(&self) -> Vec3 {
         self.center
+    }
+
+    fn get_diameter_bound(&self) -> f32 {
+        2.0 * self.radius
     }
 }
 
@@ -234,6 +243,10 @@ impl Shape for Diamond {
 
     fn get_center(&self) -> Vec3 {
         self.center
+    }
+
+    fn get_diameter_bound(&self) -> f32 {
+        (self.width + self.height).norm()
     }
 }
 
