@@ -4,6 +4,7 @@ pub trait Shape {
     fn translate(&mut self, d_pos: &Vec3);
     fn rotate(&mut self, theta_x: f32, theta_y: f32, theta_z: f32);
     fn intersect(&self, ray: &Ray) -> Option<Intersection>;
+    fn get_center(&self) -> Vec3;
 }
 
 #[derive(Debug)]
@@ -90,6 +91,10 @@ impl Shape for Quad {
         self.height = mat * (self.height - self.center) + self.center;
         self.depth = mat * (self.depth - self.center) + self.center;
     }
+
+    fn get_center(&self) -> Vec3 {
+        self.center
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -151,6 +156,10 @@ impl Shape for Sphere {
 
     fn rotate(&mut self, _theta_x: f32, _theta_y: f32, _theta_z: f32) {
         // nothing to do fow now as spheres are homogeneous
+    }
+
+    fn get_center(&self) -> Vec3 {
+        self.center
     }
 }
 
@@ -221,6 +230,10 @@ impl Shape for Diamond {
         let mat = Mat3::rot_x_y_z(theta_x, theta_y, theta_z);
         self.width = mat * (self.width - self.center) + self.center;
         self.height = mat * (self.height - self.center) + self.center;
+    }
+
+    fn get_center(&self) -> Vec3 {
+        self.center
     }
 }
 
