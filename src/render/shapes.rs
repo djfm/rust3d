@@ -256,9 +256,36 @@ pub struct Camera {
     pub screen: Diamond,
 }
 
+pub struct Region {
+    pub center: Vec3,
+    pub one_radius: Vec3,
+}
+
 impl Camera {
     pub fn new(position: Vec3, screen: Diamond) -> Camera {
         Camera { position, screen }
+    }
+
+    pub fn region<T: Shape>(&self, shape: &T) -> Option<Region> {
+        let ray = Ray::new(
+            self.position,
+            shape.get_center() - self.position,
+        );
+
+        match shape.intersect(&ray) {
+            Some(Intersection { point, dist, normal }) => {
+                let diameter_bound = shape.get_diameter_bound();
+                let radius = 0.5 * diameter_bound;
+
+                let center = point;
+                let one_radius = point + radius * normal;
+
+                Some(Region { center, one_radius })
+            },
+            None => None,
+        }
+
+        None
     }
 }
 
