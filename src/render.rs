@@ -49,6 +49,45 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
 
     let mut points:Vec<Point> = Vec::new();
 
+    let row_count = 8;
+    let col_count = 8;
+
+    let row_height = (screen.height as f32 / row_count as f32).ceil() as u32;
+    let col_width = (screen.width as f32 / col_count as f32).ceil() as u32;
+
+    let rectangles:Vec<(u32, u32)> = (0..row_count).flat_map(|row_num| {
+        (0..col_count).flat_map(move |col_num| {
+            let row_start = row_num * row_height;
+            let col_start = col_width * col_count;
+
+            let partial_row = if row_num < row_count - 1 {
+                true
+            } else {
+                false
+            };
+
+            let partial_col = if row_num < col_count - 1 {
+                true
+            } else {
+                false
+            };
+
+            (0..row_height).flat_map(move |row| {
+                (0..col_width).map(move |col| {
+                    if !partial_row && !partial_col {
+                        return (row_start + row, col_start + col);
+                    } else {
+                        if partial_row && partial_col {
+                            return (row_start + row * row_height, col_start + col);
+                        }
+                    }
+                })
+            })
+        })
+    }).collect();
+
+    println!("{:?}", rectangles);
+
     for x in 0..screen.width {
         for y in 0..screen.height {
             let screen_pos = bottom_left + (x as f32 / screen.width as f32) * scene.camera.screen.width + (y as f32 / screen.height as f32) * scene.camera.screen.height;
