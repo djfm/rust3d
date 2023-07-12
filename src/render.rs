@@ -44,81 +44,72 @@ fn compute_color(ray: &Ray, intersection: &Intersection) -> Color {
     return Color::RGB(c, c, c);
 }
 
+fn slice(distance: u32, parts: u32) -> Vec<u32> {
+    let length = (distance as f32 / parts as f32).floor() as u32;
+    let delta = distance - length * parts;
+    (0..parts).map(|i| length + if i < delta { 1 } else { 0 }).collect()
+}
+
+fn ranges(distance: u32, parts: u32) -> Vec<(u32, u32)> {
+    let slices = slice(distance, parts);
+    let mut ranges: Vec<(u32, u32)> = Vec::new();
+    let mut start = 0;
+    for slice in slices {
+        ranges.push((start, start + slice));
+        start += slice;
+    }
+    ranges
+}
+
+type ScreenRect = ((u32, u32), (u32, u32));
+
 fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
     let bottom_left = scene.camera.screen.center - scene.camera.screen.width / 2.0 - scene.camera.screen.height / 2.0;
 
     let mut points:Vec<Point> = Vec::new();
 
-    let row_count = 8;
-    let col_count = 8;
+    let x_slices = ranges(screen.width, 8);
+    let y_slices = ranges(screen.height, 8);
 
-    let row_height = (screen.height as f32 / row_count as f32).ceil() as u32;
-    let col_width = (screen.width as f32 / col_count as f32).ceil() as u32;
-
-    let rectangles:Vec<(u32, u32)> = (0..row_count).flat_map(|row_num| {
-        (0..col_count).flat_map(move |col_num| {
-            let row_start = row_num * row_height;
-            let col_start = col_width * col_count;
-
-            let partial_row = if row_num < row_count - 1 {
-                true
-            } else {
-                false
-            };
-
-            let partial_col = if row_num < col_count - 1 {
-                true
-            } else {
-                false
-            };
-
-            (0..row_height).flat_map(move |row| {
-                (0..col_width).map(move |col| {
-                    if !partial_row && !partial_col {
-                        return (row_start + row, col_start + col);
-                    } else {
-                        if partial_row && partial_col {
-                            return (row_start + row * row_height, col_start + col);
-                        }
-                    }
-                })
-            })
+    let rects: Vec<ScreenRect> = x_slices.iter().flat_map(|x| {
+        y_slices.iter().map(move |y| {
+            (*x, *y)
         })
     }).collect();
 
-    println!("{:?}", rectangles);
+    rects.iter().for_each(|(bl, tr)| {
+        for x in bl.0..bl.1 {
+            for y in tr.0..tr.1 {
+                let screen_pos = bottom_left + (x as f32 / screen.width as f32) * scene.camera.screen.width + (y as f32 / screen.height as f32) * scene.camera.screen.height;
 
-    for x in 0..screen.width {
-        for y in 0..screen.height {
-            let screen_pos = bottom_left + (x as f32 / screen.width as f32) * scene.camera.screen.width + (y as f32 / screen.height as f32) * scene.camera.screen.height;
+                let ray = Ray::new(
+                    screen_pos,
+                    screen_pos - scene.camera.position,
+                );
 
-            let ray = Ray::new(
-                screen_pos,
-                screen_pos - scene.camera.position,
-            );
+                let mut intersections: Vec<Intersection> = Vec::new();
 
-            let mut intersections: Vec<Intersection> = Vec::new();
+                for shape in &scene.shapes {
+                    if let Some(intersection) = shape.intersect(&ray) {
+                        intersections.push(
+                            intersection
+                        );
+                    }
+                }
 
-            for shape in &scene.shapes {
-                if let Some(intersection) = shape.intersect(&ray) {
-                    intersections.push(
-                        intersection
-                    );
+                match Intersection::nearest(&mut intersections) {
+                    Some(intersection) => {
+                        points.push(Point::new(
+                            x as i32,
+                            (screen.height - y) as i32,
+                            compute_color(&ray, &intersection)
+                        ))
+                    },
+                    None => {}
                 }
             }
-
-            match Intersection::nearest(&mut intersections) {
-                Some(intersection) => {
-                    points.push(Point::new(
-                        x as i32,
-                        (screen.height - y) as i32,
-                        compute_color(&ray, &intersection)
-                    ))
-                },
-                None => {}
-            }
         }
-    }
+    });
 
     points
 }
