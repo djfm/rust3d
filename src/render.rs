@@ -78,11 +78,13 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
     let scene_height = scene.camera.screen.height;
     let camera_pos = scene.camera.position;
 
+    let t_start = std::time::Instant::now();
     let screen_parts: Vec<ScreenRect> = x_slices.iter().flat_map(|x| {
         y_slices.iter().map(move |y| {
             (*x, *y)
         })
     }).collect();
+    println!("Splitting screen: {:?}ms", t_start.elapsed().as_millis());
 
     let pixels = screen_parts.par_iter().map(|(bl, tr)| {
         println!("Processing: ({:?} <-> {:?})", bl, tr);
