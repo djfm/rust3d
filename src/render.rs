@@ -71,13 +71,13 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
     let x_slices = ranges(screen.width, 8);
     let y_slices = ranges(screen.height, 8);
 
-    let rects: Vec<ScreenRect> = x_slices.iter().flat_map(|x| {
+    let screen_parts: Vec<ScreenRect> = x_slices.iter().flat_map(|x| {
         y_slices.iter().map(move |y| {
             (*x, *y)
         })
     }).collect();
 
-    rects.iter().for_each(|(bl, tr)| {
+    screen_parts.iter().for_each(|(bl, tr)| {
         for x in bl.0..bl.1 {
             for y in tr.0..tr.1 {
                 let screen_pos = bottom_left + (x as f32 / screen.width as f32) * scene.camera.screen.width + (y as f32 / screen.height as f32) * scene.camera.screen.height;
