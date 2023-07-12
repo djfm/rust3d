@@ -138,10 +138,19 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
 }
 
 pub fn render(scene: &mut Scene, display: &mut Display) {
+    let t_start = std::time::Instant::now();
+
     let points = compute(scene, display);
 
+    let t_compute_ms = t_start.elapsed().as_millis();
+
     display.canvas.set_draw_color(Color::RGB(0, 0, 0));
+
+    let t_display_ms = t_start.elapsed().as_millis() - t_compute_ms;
+
     display.canvas.clear();
+
+    println!("Compute: {}ms, Display: {}ms", t_compute_ms, t_display_ms);
 
     for point in points {
         display.canvas.set_draw_color(point.color);
