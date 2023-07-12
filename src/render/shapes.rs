@@ -224,6 +224,12 @@ impl Shape for Diamond {
     }
 }
 
+pub enum BasicShape {
+    Sphere(Sphere),
+    Diamond(Diamond),
+    Quad(Quad),
+}
+
 #[derive(Debug)]
 pub struct Camera {
     pub position: Vec3,
@@ -238,7 +244,7 @@ impl Camera {
 
 pub struct Scene {
     pub camera: Camera,
-    pub shapes: Vec<Box<dyn Shape>>,
+    pub shapes: Vec<BasicShape>,
 }
 
 impl Scene {
@@ -249,7 +255,7 @@ impl Scene {
         }
     }
 
-    pub fn add(&mut self, object: Box<dyn Shape>) -> &mut Self {
+    pub fn add(&mut self, object: BasicShape) -> &mut Self {
         self.shapes.push(object);
         self
     }

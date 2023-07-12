@@ -2,8 +2,8 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use std::time::Duration;
 
+use rust3d::render::{shapes, shapes::BasicShape, shapes::Camera};
 use rust3d::render::{render, Display};
-use rust3d::render::shapes::{Scene, Diamond, Camera, Sphere, Quad};
 use rust3d::math::Vec3;
 
 pub fn main() {
@@ -18,7 +18,7 @@ pub fn main() {
 
     let screen_z = 0.0;
     let origin = Vec3::new(0.0, 0.0, screen_z - focal);
-    let screen = Diamond::new(
+    let screen = shapes::Diamond::new(
         Vec3::new(origin.x, origin.y, screen_z),
         Vec3::new(screen_width, 0.0, 0.0),
         Vec3::new(0.0, screen_height, 0.0)
@@ -28,7 +28,7 @@ pub fn main() {
     println!("Camera: {:?}", camera);
 
     let c = 10.0;
-    let rect = Diamond::new(
+    let rect = shapes::Diamond::new(
         Vec3::new(-c, 0.0, 1.0),
         Vec3::new(c, 0.0, 0.0),
         Vec3::new(0.0, c, 0.0)
@@ -36,14 +36,14 @@ pub fn main() {
 
     println!("Rect: {:?}", rect);
 
-    let sphere = Sphere::new(Vec3::new(7.0, 15.0, 15.0), 12.0);
+    let sphere = shapes::Sphere::new(Vec3::new(7.0, 15.0, 15.0), 12.0);
 
-    let mut scene = Scene::new(camera);
-    scene.add(Box::new(rect));
-    scene.add(Box::new(sphere));
+    let mut scene = shapes::Scene::new(camera);
+    scene.add(BasicShape::Diamond(rect));
+    scene.add(BasicShape::Sphere(sphere));
 
-    let quad = Quad::iso(Vec3::new(30.0, -20.0, 80.0), 15.0);
-    scene.add(Box::new(quad));
+    let quad = shapes::Quad::iso(Vec3::new(30.0, -20.0, 80.0), 15.0);
+    scene.add(BasicShape::Quad(quad));
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
@@ -86,9 +86,11 @@ pub fn main() {
         }
         // The rest of the game loop goes here...
 
-        for shape in scene.shapes.iter_mut() {
-            shape.rotate(0.0, 0.0, 0.01);
-        }
+        /* Not working rn
+            for shape in scene.shapes.iter_mut() {
+                shape.rotate(0.0, 0.0, 0.01);
+            }
+        */
 
         display.canvas.present();
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));

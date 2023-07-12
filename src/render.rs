@@ -5,9 +5,12 @@ use sdl2::render::Canvas;
 
 pub mod shapes;
 
-use shapes::{Scene, Ray};
+use rayon::prelude::*;
 
-use self::shapes::Intersection;
+use shapes::{Scene, Ray};
+use shapes::BasicShape::{Sphere, Diamond, Quad};
+
+use self::shapes::{Intersection, Shape};
 
 pub struct Display {
     pub canvas: Canvas<Window>,
@@ -66,10 +69,14 @@ type ScreenRect = ((u32, u32), (u32, u32));
 fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
     let bottom_left = scene.camera.screen.center - scene.camera.screen.width / 2.0 - scene.camera.screen.height / 2.0;
 
-    let mut points:Vec<Point> = Vec::new();
-
     let x_slices = ranges(screen.width, 8);
     let y_slices = ranges(screen.height, 8);
+
+    let screen_width = screen.width as f32;
+    let screen_height = screen.height as f32;
+    let scene_width = scene.camera.screen.width;
+    let scene_height = scene.camera.screen.height;
+    let camera_pos = scene.camera.position;
 
     let screen_parts: Vec<ScreenRect> = x_slices.iter().flat_map(|x| {
         y_slices.iter().map(move |y| {
@@ -77,20 +84,32 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
         })
     }).collect();
 
-    screen_parts.iter().for_each(|(bl, tr)| {
-        for x in bl.0..bl.1 {
-            for y in tr.0..tr.1 {
-                let screen_pos = bottom_left + (x as f32 / screen.width as f32) * scene.camera.screen.width + (y as f32 / screen.height as f32) * scene.camera.screen.height;
+    let pixels = screen_parts.par_iter().map(|(bl, tr)| {
+        (bl.0..bl.1).into_iter().flat_map(move |x| {
+            (tr.0..tr.1).into_iter().flat_map(move |y| {
+                let screen_pos = bottom_left + (x as f32 / screen_width) * scene_width + (y as f32 / screen_height as f32) * scene_height;
 
                 let ray = Ray::new(
                     screen_pos,
-                    screen_pos - scene.camera.position,
+                    screen_pos - camera_pos,
                 );
 
                 let mut intersections: Vec<Intersection> = Vec::new();
 
                 for shape in &scene.shapes {
-                    if let Some(intersection) = shape.intersect(&ray) {
+                    let maybe_inter = match shape {
+                        Quad(s) => {
+                            s.intersect(&ray)
+                        },
+                        Sphere(s) => {
+                            s.intersect(&ray)
+                        },
+                        Diamond(s) => {
+                            s.intersect(&ray)
+                        }
+                    };
+
+                    if let Some(intersection) = maybe_inter {
                         intersections.push(
                             intersection
                         );
@@ -99,19 +118,21 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
 
                 match Intersection::nearest(&mut intersections) {
                     Some(intersection) => {
-                        points.push(Point::new(
+                        vec![Point::new(
                             x as i32,
-                            (screen.height - y) as i32,
+                            (screen_height - y as f32) as i32,
                             compute_color(&ray, &intersection)
-                        ))
+                        )]
                     },
-                    None => {}
+                    None => vec![]
                 }
-            }
-        }
-    });
+            })
+        })
+    }).collect::<Vec<_>>();
 
-    points
+    let result: Vec<Point> = pixels.into_iter().flat_map(|x| x).collect();
+
+    result
 }
 
 pub fn render(scene: &mut Scene, display: &mut Display) {
