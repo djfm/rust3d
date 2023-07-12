@@ -69,8 +69,8 @@ type ScreenRect = ((u32, u32), (u32, u32));
 fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
     let bottom_left = scene.camera.screen.center - scene.camera.screen.width / 2.0 - scene.camera.screen.height / 2.0;
 
-    let x_slices = ranges(screen.width, 8);
-    let y_slices = ranges(screen.height, 8);
+    let x_slices = ranges(screen.width, 4);
+    let y_slices = ranges(screen.height, 4);
 
     let screen_width = screen.width as f32;
     let screen_height = screen.height as f32;
@@ -85,6 +85,8 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
     }).collect();
 
     let pixels = screen_parts.par_iter().map(|(bl, tr)| {
+        println!("Processing: ({:?} <-> {:?})", bl, tr);
+
         (bl.0..bl.1).into_iter().flat_map(move |x| {
             (tr.0..tr.1).into_iter().flat_map(move |y| {
                 let screen_pos = bottom_left + (x as f32 / screen_width) * scene_width + (y as f32 / screen_height as f32) * scene_height;
