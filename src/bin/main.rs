@@ -60,12 +60,20 @@ pub fn main() {
     // display.canvas.clear();
     // display.canvas.present();
 
+    let mut frame_num = 0;
+    let t_start = std::time::Instant::now();
+
     let mut event_pump = sdl_context.event_pump().unwrap();
     'running: loop {
+        frame_num += 1;
         // display.canvas.set_draw_color(Color::RGB(255, 255, 255));
         // display.canvas.draw_point(Point::new(100, 100)).unwrap();
 
         render(&mut scene, &mut display);
+        let t_elapsed = t_start.elapsed();
+        let fps = frame_num as f64 / t_elapsed.as_secs_f64();
+
+        println!("FPS: {}", fps);
 
         for event in event_pump.poll_iter() {
             match event {
