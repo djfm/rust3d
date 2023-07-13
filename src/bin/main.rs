@@ -86,11 +86,11 @@ pub fn main() {
         }
         // The rest of the game loop goes here...
 
-        /* Not working rn
+        //* Not working rn
             for shape in scene.shapes.iter_mut() {
                 shape.rotate(0.0, 0.0, 0.01);
             }
-        */
+        //*/
 
         display.canvas.present();
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));

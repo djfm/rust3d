@@ -238,6 +238,14 @@ impl BasicShape {
             BasicShape::Quad(ref quad) => quad.intersect(ray),
         }
     }
+
+    pub fn rotate(&mut self, theta_x: f32, theta_y: f32, theta_z: f32) {
+        match self {
+            BasicShape::Sphere(ref mut sphere) => sphere.rotate(theta_x, theta_y, theta_z),
+            BasicShape::Diamond(ref mut diamond) => diamond.rotate(theta_x, theta_y, theta_z),
+            BasicShape::Quad(ref mut quad) => quad.rotate(theta_x, theta_y, theta_z),
+        }
+    }
 }
 
 #[derive(Debug)]
