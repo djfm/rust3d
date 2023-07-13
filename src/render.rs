@@ -65,8 +65,9 @@ fn ranges(distance: u32, parts: u32) -> Vec<(u32, u32)> {
 }
 
 type ScreenRect = ((u32, u32), (u32, u32));
+type NestedPoints = Vec<Vec<Vec<Point>>>;
 
-fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
+fn compute(scene: &Scene, screen: &Display) -> NestedPoints {
     let bottom_left = scene.camera.screen.center - scene.camera.screen.width / 2.0 - scene.camera.screen.height / 2.0;
 
     let x_slices = ranges(screen.width, 4);
@@ -86,11 +87,11 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
     }).collect();
     println!("Splitting screen: {:?}ms", t_start.elapsed().as_millis());
 
-    let pixels = screen_parts.par_iter().map(|(bl, tr)| {
+    let pixels: NestedPoints = screen_parts.par_iter().map(|(bl, tr)| {
         println!("Processing: ({:?} <-> {:?})", bl, tr);
 
-        (bl.0..bl.1).into_iter().flat_map(move |x| {
-            (tr.0..tr.1).into_iter().flat_map(move |y| {
+        (bl.0..bl.1).into_iter().map(move |x| {
+            (tr.0..tr.1).into_iter().map(move |y| {
                 let screen_pos = bottom_left + (x as f32 / screen_width) * scene_width + (y as f32 / screen_height as f32) * scene_height;
 
                 let ray = Ray::new(
@@ -122,21 +123,19 @@ fn compute(scene: &Scene, screen: &Display) -> Vec<Point> {
 
                 match Intersection::nearest(&mut intersections) {
                     Some(intersection) => {
-                        vec![Point::new(
+                        Some (Point::new(
                             x as i32,
                             (screen_height - y as f32) as i32,
                             compute_color(&ray, &intersection)
-                        )]
+                        ))
                     },
-                    None => vec![]
+                    None => None
                 }
-            })
-        })
+            }).filter(|x| x.is_some()).map(|x| x.unwrap()).collect()
+        }).collect()
     }).collect::<Vec<_>>();
 
-    let result: Vec<Point> = pixels.into_iter().flat_map(|x| x).collect();
-
-    result
+    pixels
 }
 
 pub fn render(scene: &mut Scene, display: &mut Display) {
@@ -154,9 +153,13 @@ pub fn render(scene: &mut Scene, display: &mut Display) {
 
     println!("Compute: {}ms, Display: {}ms", t_compute_ms, t_display_ms);
 
-    for point in points {
-        display.canvas.set_draw_color(point.color);
-        display.canvas.draw_point(point.point).unwrap();
+    for list_a in &points {
+        for list_b in list_a {
+            for point in list_b {
+                display.canvas.set_draw_color(point.color);
+                display.canvas.draw_point(point.point).unwrap();
+            }
+        }
     }
 }
 
