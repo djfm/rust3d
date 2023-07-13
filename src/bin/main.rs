@@ -73,7 +73,7 @@ pub fn main() {
         let t_elapsed = t_start.elapsed();
         let fps = frame_num as f64 / t_elapsed.as_secs_f64();
 
-        println!("FPS: {}", fps);
+        println!("\nFPS: {}\n", fps);
 
         for event in event_pump.poll_iter() {
             match event {
