@@ -230,6 +230,16 @@ pub enum BasicShape {
     Quad(Quad),
 }
 
+impl BasicShape {
+    pub fn intersect(&self, ray: &Ray) -> Option<Intersection> {
+        match self {
+            BasicShape::Sphere(ref sphere) => sphere.intersect(ray),
+            BasicShape::Diamond(ref diamond) => diamond.intersect(ray),
+            BasicShape::Quad(ref quad) => quad.intersect(ray),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Camera {
     pub position: Vec3,

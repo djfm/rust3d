@@ -8,9 +8,8 @@ pub mod shapes;
 use rayon::prelude::*;
 
 use shapes::{Scene, Ray};
-use shapes::BasicShape::{Sphere, Diamond, Quad};
 
-use self::shapes::{Intersection, Shape};
+use self::shapes::Intersection;
 
 pub struct Display {
     pub canvas: Canvas<Window>,
@@ -102,17 +101,7 @@ fn compute(scene: &Scene, screen: &Display) -> NestedPoints {
                 let mut intersections: Vec<Intersection> = Vec::new();
 
                 for shape in &scene.shapes {
-                    let maybe_inter = match shape {
-                        Quad(s) => {
-                            s.intersect(&ray)
-                        },
-                        Sphere(s) => {
-                            s.intersect(&ray)
-                        },
-                        Diamond(s) => {
-                            s.intersect(&ray)
-                        }
-                    };
+                    let maybe_inter = shape.intersect(&ray);
 
                     if let Some(intersection) = maybe_inter {
                         intersections.push(
