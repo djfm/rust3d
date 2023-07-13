@@ -63,10 +63,13 @@ fn ranges(distance: u32, parts: u32) -> Vec<(u32, u32)> {
     ranges
 }
 
-type ScreenRect = ((u32, u32), (u32, u32));
-type NestedPoints = Vec<Vec<Vec<Point>>>;
+type Pair = (u32, u32);
+type RectCoords = (Pair, Pair);
+type Points1D = Vec<Point>;
+type Points2D = Vec<Points1D>;
+type Points3D = Vec<Points2D>;
 
-fn compute(scene: &Scene, screen: &Display) -> NestedPoints {
+fn compute(scene: &Scene, screen: &Display) -> Points3D {
     let bottom_left = scene.camera.screen.center - scene.camera.screen.width / 2.0 - scene.camera.screen.height / 2.0;
 
     let x_slices = ranges(screen.width, 4);
@@ -79,50 +82,60 @@ fn compute(scene: &Scene, screen: &Display) -> NestedPoints {
     let camera_pos = scene.camera.position;
 
     let t_start = std::time::Instant::now();
-    let screen_parts: Vec<ScreenRect> = x_slices.iter().flat_map(|x| {
+    let screen_parts: Vec<RectCoords> = x_slices.iter().flat_map(|x| {
         y_slices.iter().map(move |y| {
             (*x, *y)
         })
     }).collect();
     println!("Splitting screen: {:?}ms", t_start.elapsed().as_millis());
 
-    let pixels: NestedPoints = screen_parts.par_iter().map(|(bl, tr)| {
-        println!("Processing: ({:?} <-> {:?})", bl, tr);
+    let compute_x_y_pixel = |x: u32, y: u32| -> Option<Point> {
+        let screen_pos = bottom_left + (x as f32 / screen_width) * scene_width + (y as f32 / screen_height as f32) * scene_height;
 
-        (bl.0..bl.1).into_iter().map(move |x| {
-            (tr.0..tr.1).into_iter().map(move |y| {
-                let screen_pos = bottom_left + (x as f32 / screen_width) * scene_width + (y as f32 / screen_height as f32) * scene_height;
+        let ray = Ray::new(
+            screen_pos,
+            screen_pos - camera_pos,
+        );
 
-                let ray = Ray::new(
-                    screen_pos,
-                    screen_pos - camera_pos,
+        let mut intersections: Vec<Intersection> = Vec::new();
+
+        for shape in &scene.shapes {
+            let maybe_inter = shape.intersect(&ray);
+
+            if let Some(intersection) = maybe_inter {
+                intersections.push(
+                    intersection
                 );
+            }
+        }
 
-                let mut intersections: Vec<Intersection> = Vec::new();
+        match Intersection::nearest(&mut intersections) {
+            Some(intersection) => {
+                Some(Point::new(
+                    x as i32,
+                    (screen_height - y as f32) as i32,
+                    compute_color(&ray, &intersection)
+                ))
+            },
+            None => None
+        }
+    };
 
-                for shape in &scene.shapes {
-                    let maybe_inter = shape.intersect(&ray);
+    let screen_part_processor = |(bl, tr): &RectCoords| -> Points2D {
+        (bl.0..bl.1).map(|x| {
+            (tr.0..tr.1).map(|y| {
+                compute_x_y_pixel(x, y)
+            }).filter(|maybe_point| {
+                maybe_point.is_some()
+            }).map(|maybe_point| {
+                maybe_point.unwrap()
+            }).collect::<Points1D>()
+        }).collect::<Points2D>()
+    };
 
-                    if let Some(intersection) = maybe_inter {
-                        intersections.push(
-                            intersection
-                        );
-                    }
-                }
-
-                match Intersection::nearest(&mut intersections) {
-                    Some(intersection) => {
-                        Some (Point::new(
-                            x as i32,
-                            (screen_height - y as f32) as i32,
-                            compute_color(&ray, &intersection)
-                        ))
-                    },
-                    None => None
-                }
-            }).filter(|x| x.is_some()).map(|x| x.unwrap()).collect()
-        }).collect()
-    }).collect::<Vec<_>>();
+    let pixels: Points3D = screen_parts.par_iter().map(
+        screen_part_processor
+    ).collect();
 
     pixels
 }
