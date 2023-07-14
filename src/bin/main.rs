@@ -75,26 +75,45 @@ pub fn main() {
 
         println!("\nFPS: {}\n", fps);
 
+        let a = std::f32::consts::PI / 180.0;
+        let d = 10.0;
+
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit {..} |
                 Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
                     break 'running
                 },
+                Event::KeyDown { keycode: Some(Keycode::Z), .. } => {
+                    scene.camera.translate(0.0, 0.0, d);
+                    println!("Camera position: {:?}", scene.camera.position);
+                },
+                Event::KeyDown { keycode: Some(Keycode::S), .. } => {
+                    scene.camera.translate(0.0, 0.0, -d);
+                    println!("Camera position: {:?}", scene.camera.position);
+                },
+                Event::KeyDown { keycode: Some(Keycode::Q), .. } => {
+                    scene.camera.translate(-d, 0.0, 0.0);
+                    println!("Camera position: {:?}", scene.camera.position);
+                },
+                Event::KeyDown { keycode: Some(Keycode::D), .. } => {
+                    scene.camera.translate(d, 0.0, 0.0);
+                    println!("Camera position: {:?}", scene.camera.position);
+                },
                 Event::KeyDown { keycode: Some(Keycode::Up), .. } => {
-                    scene.camera.position.z += 10.0;
+                    scene.camera.rotate(a, 0.0, 0.0);
                     println!("Camera position: {:?}", scene.camera.position);
                 },
                 Event::KeyDown { keycode: Some(Keycode::Down), .. } => {
-                    scene.camera.position.z -= 10.0;
+                    scene.camera.rotate(-a, 0.0, 0.0);
                     println!("Camera position: {:?}", scene.camera.position);
                 },
                 Event::KeyDown { keycode: Some(Keycode::Left), .. } => {
-                    scene.camera.position.x -= 10.0;
+                    scene.camera.rotate(0.0, a, 0.0);
                     println!("Camera position: {:?}", scene.camera.position);
                 },
                 Event::KeyDown { keycode: Some(Keycode::Right), .. } => {
-                    scene.camera.position.x += 10.0;
+                    scene.camera.rotate(0.0, -a, 0.0);
                     println!("Camera position: {:?}", scene.camera.position);
                 },
                 _ => {}

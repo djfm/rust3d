@@ -234,6 +234,16 @@ impl Camera {
     pub fn new(position: Vec3, screen: Diamond) -> Camera {
         Camera { position, screen }
     }
+
+    pub fn rotate(&mut self, theta_x: f32, theta_y: f32, theta_z: f32) {
+        self.screen.rotate(theta_x, theta_y, theta_z);
+    }
+
+    pub fn translate(&mut self, d_pos_x: f32, d_pos_y: f32, d_pos_z: f32) {
+        let d_pos = Vec3::new(d_pos_x, d_pos_y, d_pos_z);
+        self.position += d_pos;
+        self.screen.translate(&d_pos);
+    }
 }
 
 pub struct Scene {
