@@ -224,6 +224,53 @@ impl Shape for Diamond {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct Color {
+    pub rgb: Vec3,
+}
+
+impl Color {
+    pub fn new(r: f32, g: f32, b: f32) -> Color {
+        Color { rgb: Vec3::new(r, g, b) }
+    }
+
+    pub fn dim(&self, f: f32) -> Color {
+        let rgb = self.rgb / f;
+
+        Color { rgb }
+    }
+}
+
+#[derive(Debug)]
+pub struct Light {
+    sphere: Sphere,
+    pub color: Color,
+}
+
+impl Light {
+    pub fn new(center: Vec3, radius: f32, color: Color) -> Light {
+        Light { sphere: Sphere::new(center, radius), color }
+    }
+
+    pub fn origin(&self) -> Vec3 {
+        self.sphere.center
+    }
+}
+
+impl Shape for Light {
+    fn translate(&mut self, d_pos: &Vec3) {
+        self.sphere.translate(d_pos);
+    }
+
+    fn intersect(&self, ray: &Ray) -> Option<Intersection> {
+        self.sphere.intersect(ray)
+    }
+
+    fn rotate(&mut self, theta_x: f32, theta_y: f32, theta_z: f32) {
+        self.sphere.rotate(theta_x, theta_y, theta_z);
+    }
+}
+
 #[derive(Debug)]
 pub struct Camera {
     pub position: Vec3,
@@ -249,6 +296,7 @@ impl Camera {
 pub struct Scene {
     pub camera: Camera,
     pub shapes: Vec<Box<dyn Shape>>,
+    pub lights: Vec<Light>,
 }
 
 impl Scene {
@@ -256,11 +304,17 @@ impl Scene {
         Scene {
             camera,
             shapes: Vec::new(),
+            lights: Vec::new(),
         }
     }
 
-    pub fn add(&mut self, object: Box<dyn Shape>) -> &mut Self {
+    pub fn add_object(&mut self, object: Box<dyn Shape>) -> &mut Self {
         self.shapes.push(object);
+        self
+    }
+
+    pub fn add_light(&mut self, light: Light) -> &mut Self {
+        self.lights.push(light);
         self
     }
 }

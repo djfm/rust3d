@@ -2,7 +2,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use std::time::Duration;
 
-use rust3d::render::{shapes, shapes::Camera};
+use rust3d::render::{objects, objects::Camera};
 use rust3d::render::{render, Display};
 use rust3d::math::Vec3;
 
@@ -18,7 +18,7 @@ pub fn main() {
 
     let screen_z = 0.0;
     let origin = Vec3::new(0.0, 0.0, screen_z - focal);
-    let screen = shapes::Diamond::new(
+    let screen = objects::Diamond::new(
         Vec3::new(origin.x, origin.y, screen_z),
         Vec3::new(screen_width, 0.0, 0.0),
         Vec3::new(0.0, screen_height, 0.0)
@@ -28,7 +28,7 @@ pub fn main() {
     println!("Camera: {:?}", camera);
 
     let c = 10.0;
-    let rect = shapes::Diamond::new(
+    let rect = objects::Diamond::new(
         Vec3::new(-c, 0.0, 1.0),
         Vec3::new(c, 0.0, 0.0),
         Vec3::new(0.0, c, 0.0)
@@ -36,14 +36,22 @@ pub fn main() {
 
     println!("Rect: {:?}", rect);
 
-    let sphere = shapes::Sphere::new(Vec3::new(7.0, 15.0, 15.0), 12.0);
+    let sphere = objects::Sphere::new(Vec3::new(7.0, 15.0, 15.0), 12.0);
 
-    let mut scene = shapes::Scene::new(camera);
-    scene.add(Box::new(rect));
-    scene.add(Box::new(sphere));
+    let mut scene = objects::Scene::new(camera);
+    scene.add_object(Box::new(rect));
+    scene.add_object(Box::new(sphere));
 
-    let quad = shapes::Quad::iso(Vec3::new(30.0, -20.0, 80.0), 15.0);
-    scene.add(Box::new(quad));
+    let quad = objects::Quad::iso(Vec3::new(30.0, -20.0, 80.0), 15.0);
+    scene.add_object(Box::new(quad));
+
+    let light_a = objects::Light::new(
+        Vec3::new(40.0, 40.0, -50.0),
+        5.0,
+        objects::Color::new(1.0, 0.0, 0.0)
+    );
+
+    scene.add_light(light_a);
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();

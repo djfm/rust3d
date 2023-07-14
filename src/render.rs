@@ -3,13 +3,31 @@ use sdl2::rect::Point as SDLPoint;
 use sdl2::video::Window;
 use sdl2::render::Canvas;
 
-pub mod shapes;
+pub mod objects;
 
 use rayon::prelude::*;
 
-use shapes::{Scene, Ray};
+use objects::{Scene, Ray};
 
-use self::shapes::Intersection;
+use self::objects::Intersection;
+
+impl objects::Color {
+    pub fn as_sdl(colors: &Vec<objects::Color>) -> Color {
+        let mut r = 0.0;
+        let mut g = 0.0;
+        let mut b = 0.0;
+
+        for color in colors {
+            r += color.rgb.x;
+            g += color.rgb.y;
+            b += color.rgb.z;
+        }
+
+        let len = colors.len() as f32;
+
+        Color::RGB((r * 255.0 / len) as u8, (g * 255.0 / len) as u8, (b * 255.0 / len) as u8)
+    }
+}
 
 pub struct Display {
     pub canvas: Canvas<Window>,
@@ -38,12 +56,35 @@ impl Display {
     }
 }
 
-fn compute_color(ray: &Ray, intersection: &Intersection) -> Color {
+fn compute_color(ray: &Ray, intersection: &Intersection, scene: &Scene) -> Color {
     let a = ray.direction.dot(&intersection.normal);
 
-    let c = (255.0 - a.abs() * 127.0) as u8;
+    let c = (2.0 + a) / 2.0;
+    let epsilon = 1.0;
 
-    return Color::RGB(c, c, c);
+    let mut colors: Vec<objects::Color> = scene.lights.iter().filter_map(|light| {
+        let direction = light.origin() - intersection.point;
+
+        let shadowed = scene.shapes.iter().any(|shape| {
+            match shape.intersect(&Ray::new(intersection.point, direction)) {
+                Some(intersection) => intersection.dist > epsilon,
+                None => false,
+            }
+        });
+
+        if shadowed {
+            return None;
+        }
+
+        // light distance
+        let d = direction.norm();
+
+        Some(light.color.dim(d * d / 10000.0))
+    }).collect();
+
+    colors.push(objects::Color::new(c, c, c));
+
+    return objects::Color::as_sdl(&colors);
 }
 
 fn slice(distance: u32, parts: u32) -> Vec<u32> {
@@ -114,7 +155,7 @@ fn compute(scene: &Scene, screen: &Display) -> Points3D {
                 Some(Point::new(
                     x as i32,
                     (screen_height - y as f32) as i32,
-                    compute_color(&ray, &intersection)
+                    compute_color(&ray, &intersection, &scene)
                 ))
             },
             None => None
