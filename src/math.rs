@@ -643,4 +643,49 @@ mod tests {
         assert_eq!(actual, expected, "vector dot product failed");
     }
 
+    struct RotationTest {
+        src: Vec3,
+        target: Vec3,
+        rot: Mat3,
+        message: &'static str
+    }
+
+    fn test_rotation(t: &RotationTest) {
+        let actual = t.rot * t.src;
+        assert!((t.target - actual).norm() < 0.0001, "rotation failed: {:} (got: {:?})", t.message, actual);
+    }
+
+    #[test]
+    fn test_rotations() {
+        let q = std::f32::consts::PI / 2.0;
+
+        let x_axis = Vec3::new(1.0, 0.0, 0.0);
+        let y_axis = Vec3::new(0.0, 1.0, 0.0);
+        let z_axis = Vec3::new(0.0, 0.0, 1.0);
+
+        let rotation_tests = vec![
+            RotationTest {
+                src: x_axis,
+                target: y_axis,
+                rot: Mat3::rot_z(q),
+                message: "around z axis"
+            },
+            RotationTest {
+                src: z_axis,
+                target: x_axis,
+                rot: Mat3::rot_y(q),
+                message: "around y axis"
+            },
+            RotationTest {
+                src: y_axis,
+                target: z_axis,
+                rot: Mat3::rot_x(q),
+                message: "around x axis"
+            }
+        ];
+
+        for t in &rotation_tests {
+            test_rotation(t);
+        }
+    }
 }
