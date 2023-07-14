@@ -81,6 +81,22 @@ pub fn main() {
                 Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
                     break 'running
                 },
+                Event::KeyDown { keycode: Some(Keycode::Up), .. } => {
+                    scene.camera.position.z += 10.0;
+                    println!("Camera position: {:?}", scene.camera.position);
+                },
+                Event::KeyDown { keycode: Some(Keycode::Down), .. } => {
+                    scene.camera.position.z -= 10.0;
+                    println!("Camera position: {:?}", scene.camera.position);
+                },
+                Event::KeyDown { keycode: Some(Keycode::Left), .. } => {
+                    scene.camera.position.x -= 10.0;
+                    println!("Camera position: {:?}", scene.camera.position);
+                },
+                Event::KeyDown { keycode: Some(Keycode::Right), .. } => {
+                    scene.camera.position.x += 10.0;
+                    println!("Camera position: {:?}", scene.camera.position);
+                },
                 _ => {}
             }
         }
