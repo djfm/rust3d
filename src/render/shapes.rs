@@ -1,6 +1,6 @@
 use crate::math::{Vec3, Mat3};
 
-pub trait Shape {
+pub trait Shape: Send + Sync {
     fn translate(&mut self, d_pos: &Vec3);
     fn rotate(&mut self, theta_x: f32, theta_y: f32, theta_z: f32);
     fn intersect(&self, ray: &Ray) -> Option<Intersection>;
@@ -224,30 +224,6 @@ impl Shape for Diamond {
     }
 }
 
-pub enum BasicShape {
-    Sphere(Sphere),
-    Diamond(Diamond),
-    Quad(Quad),
-}
-
-impl BasicShape {
-    pub fn intersect(&self, ray: &Ray) -> Option<Intersection> {
-        match self {
-            BasicShape::Sphere(ref sphere) => sphere.intersect(ray),
-            BasicShape::Diamond(ref diamond) => diamond.intersect(ray),
-            BasicShape::Quad(ref quad) => quad.intersect(ray),
-        }
-    }
-
-    pub fn rotate(&mut self, theta_x: f32, theta_y: f32, theta_z: f32) {
-        match self {
-            BasicShape::Sphere(ref mut sphere) => sphere.rotate(theta_x, theta_y, theta_z),
-            BasicShape::Diamond(ref mut diamond) => diamond.rotate(theta_x, theta_y, theta_z),
-            BasicShape::Quad(ref mut quad) => quad.rotate(theta_x, theta_y, theta_z),
-        }
-    }
-}
-
 #[derive(Debug)]
 pub struct Camera {
     pub position: Vec3,
@@ -262,7 +238,7 @@ impl Camera {
 
 pub struct Scene {
     pub camera: Camera,
-    pub shapes: Vec<BasicShape>,
+    pub shapes: Vec<Box<dyn Shape>>,
 }
 
 impl Scene {
@@ -273,7 +249,7 @@ impl Scene {
         }
     }
 
-    pub fn add(&mut self, object: BasicShape) -> &mut Self {
+    pub fn add(&mut self, object: Box<dyn Shape>) -> &mut Self {
         self.shapes.push(object);
         self
     }
