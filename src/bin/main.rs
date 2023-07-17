@@ -1,3 +1,4 @@
+use rust3d::render::objects::Diamond;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use std::time::Duration;
@@ -52,15 +53,42 @@ fn get_bad_first_scene(width: u32, height: u32) -> objects::Scene {
     scene
 }
 
-fn get_scene(screen_width: u32, screen_height: u32) -> objects::Scene {
-    get_bad_first_scene(screen_width, screen_height)
+fn get_test_scene(screen_width: u32, screen_height: u32) -> objects::Scene {
+    let origin = Vec3::new(0.0, 0.0, 0.0);
+    let pov = origin - 10.0 * Vec3::new(0.0, 0.0, 1.0);
+
+    let camera_screen = Diamond::new(
+        origin,
+        Vec3::new(screen_width as f32 / 10.0, 0.0, 0.0),
+        Vec3::new(0.0, screen_height as f32 / 10.0, 0.0),
+    );
+
+    let mut scene = objects::Scene::new(Camera::new(pov, camera_screen));
+
+    let quad = objects::Quad::iso(Vec3::new(0.0, 0.0, 10.0), 10.0);
+
+    scene.add_object(Box::new(quad));
+
+    scene
+}
+
+enum Scene {
+    Bad,
+    Test
+}
+
+fn get_scene(screen_width: u32, screen_height: u32, which: Scene) -> objects::Scene {
+    match which {
+        Scene::Bad => get_bad_first_scene(screen_width, screen_height),
+        Scene::Test => get_test_scene(screen_width, screen_height),
+    }
 }
 
 pub fn main() {
     let width = 800;
     let height = 600;
 
-    let mut scene = get_scene(width, height);
+    let mut scene = get_scene(width, height, Scene::Test);
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
