@@ -6,15 +6,11 @@ use rust3d::render::{objects, objects::Camera};
 use rust3d::render::{render, Display};
 use rust3d::math::Vec3;
 
-pub fn main() {
-    let width = 800;
-    let height = 600;
-
+fn get_bad_first_scene(width: u32, height: u32) -> objects::Scene {
     let ratio = height as f32 / width as f32;
     let screen_width = width as f32 / 10.0;
     let screen_height = screen_width * ratio;
     let focal = 500.0;
-
 
     let screen_z = 0.0;
     let origin = Vec3::new(0.0, 0.0, screen_z - focal);
@@ -52,6 +48,19 @@ pub fn main() {
     );
 
     scene.add_light(light_a);
+
+    scene
+}
+
+fn get_scene(screen_width: u32, screen_height: u32) -> objects::Scene {
+    get_bad_first_scene(screen_width, screen_height)
+}
+
+pub fn main() {
+    let width = 800;
+    let height = 600;
+
+    let mut scene = get_scene(width, height);
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
